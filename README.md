@@ -6,7 +6,7 @@ Images are increasingly available from a variety of sources, including nano-sate
 
 ## Dataset
 
-You can download the [datasets](https://www.crowdai.org/challenges/mapping-challenge) and place them in the data/ dir :
+You can download the [datasets](https://www.aicrowd.com/challenges/mapping-challenge#datasets) and place them in the data/ dir :
 
 * train.tar.gz : This is the Training Set of 280741 tiles (as 300x300 pixel RGB images) of satellite imagery, along with their corresponding annotations in MS-COCO format
 
