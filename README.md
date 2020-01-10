@@ -1,4 +1,4 @@
-# Segmentation of Satellite Images
+# Segmentation of Satellite Images (In Progress)
 
 ## Synopsis
 
