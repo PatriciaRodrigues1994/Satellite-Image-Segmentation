@@ -66,8 +66,8 @@ class CarvanaClassifier:
 
                 loss = self._criterion(logits, targets)
                 acc = losses_utils.dice_coeff(preds, targets)
-                losses.update(loss.data[0], batch_size)
-                dice_coeffs.update(acc.data[0], batch_size)
+                losses.update(loss.item(), batch_size)
+                dice_coeffs.update(acc.item(), batch_size)
                 pbar.update(1)
 
         return losses.avg, dice_coeffs.avg, images, targets, preds
@@ -104,12 +104,12 @@ class CarvanaClassifier:
                 # print statistics
                 acc = losses_utils.dice_coeff(pred, target)
 
-                losses.update(loss.data[0], batch_size)
-                dice_coeffs.update(acc.data[0], batch_size)
+                losses.update(loss.item(), batch_size)
+                dice_coeffs.update(acc.item(), batch_size)
 
                 # Update pbar
-                pbar.set_postfix(OrderedDict(loss='{0:1.5f}'.format(loss.data[0]),
-                                             dice_coeff='{0:1.5f}'.format(acc.data[0])))
+                pbar.set_postfix(OrderedDict(loss='{0:1.5f}'.format(loss.item()),
+                                             dice_coeff='{0:1.5f}'.format(acc.item())))
                 pbar.update(1)
         return losses.avg, dice_coeffs.avg
 

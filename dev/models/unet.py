@@ -80,7 +80,7 @@ class UNetOriginal(nn.Module):
         self.up1 = StackDecoder(in_channels=1024, out_channels=512, upsample_size=(56, 56))
         self.up2 = StackDecoder(in_channels=512, out_channels=256, upsample_size=(104, 104))
         self.up3 = StackDecoder(in_channels=256, out_channels=128, upsample_size=(200, 200))
-        self.up4 = StackDecoder(in_channels=128, out_channels=64, upsample_size=(392, 392))
+        self.up4 = StackDecoder(in_channels=128, out_channels=64, upsample_size=(304, 304))
 
         # 1x1 convolution at the last layer
         # Different from the paper is the output size here
@@ -98,8 +98,7 @@ class UNetOriginal(nn.Module):
         x = self.up2(x, x_trace3)
         x = self.up3(x, x_trace2)
         x = self.up4(x, x_trace1)
-
+        
         out = self.output_seg_map(x)
         out = torch.squeeze(out, dim=1)
-        print(out.shape)
         return out
