@@ -34,5 +34,8 @@ You can download the [datasets](https://www.aicrowd.com/challenges/mapping-chall
 2. To train a pretrained model, you can run training.py from the src directory.    
 3. For inference, use inference.py script.
 
+If you want to take a look at the prediction at each epochs you can use tensorboard with:  
+	tensorboard --logdir=./logs
+
 ## Results
-![Satellite Image and its predicited mask](./img/output.png)
+![Satellite Image and its predicited mask](./data/output/mask_output.png)

@@ -4,12 +4,12 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-import models.tools as tools
+import model_utils.tools as tools
 from tqdm import tqdm
 from collections import OrderedDict
 
-import models.losses as losses_utils
-import models.helpers as helpers
+import model_utils.losses as losses_utils
+import model_utils.helpers as helpers
 
 
 class CarvanaClassifier:

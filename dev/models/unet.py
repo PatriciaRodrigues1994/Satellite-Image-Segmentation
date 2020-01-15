@@ -2,7 +2,18 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
+class Interpolate(nn.Module):
+    def __init__(self, size, mode):
+        super(Interpolate, self).__init__()
+        self.interp = nn.functional.interpolate
+        self.size = size
+        self.mode = mode
+        
+    def forward(self, x):
+        x = self.interp(x, size=self.size, mode=self.mode, align_corners=False)
+        return x
+    
+    
 class ConvBnRelu(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, padding, stride):
         super(ConvBnRelu, self).__init__()
@@ -36,8 +47,8 @@ class StackDecoder(nn.Module):
     def __init__(self, in_channels, out_channels, upsample_size):
         super(StackDecoder, self).__init__()
 
-#         self.upSample = nn.Upsample(size=upsample_size, scale_factor=(2, 2), mode="bilinear")
-        self.upSample = nn.Upsample(size=upsample_size, scale_factor= None, mode="bilinear")
+
+        self.upSample = Interpolate(size=upsample_size, mode="bilinear")
         self.convr1 = ConvBnRelu(in_channels, out_channels, kernel_size=(3, 3), stride=1, padding=0)
         # Crop + concat step between these 2
         self.convr2 = ConvBnRelu(in_channels, out_channels, kernel_size=(3, 3), stride=1, padding=0)

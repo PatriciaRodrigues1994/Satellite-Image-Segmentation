@@ -86,8 +86,9 @@ class TensorboardVisualizerCallback(Callback):
 
             expected_result = self._get_mask_representation(image, target_mask)
             pred_result = self._get_mask_representation(image, pred_mask)
-            writer.add_image("Epoch_" + str(epoch_id) + '-Image_' + str(i + 1) + '-Expected', expected_result, epoch_id)
-            writer.add_image("Epoch_" + str(epoch_id) + '-Image_' + str(i + 1) + '-Predicted', pred_result, epoch_id)
+            
+            writer.add_image("Epoch_" + str(epoch_id) + '-Image_' + str(i + 1) + '-Expected', torch.from_numpy(expected_result), epoch_id, dataformats ='HWC')
+            writer.add_image("Epoch_" + str(epoch_id) + '-Image_' + str(i + 1) + '-Predicted', torch.from_numpy(pred_result), epoch_id, dataformats ='HWC')
             if i == 1:  # 2 Images are sufficient
                 break
         writer.close()

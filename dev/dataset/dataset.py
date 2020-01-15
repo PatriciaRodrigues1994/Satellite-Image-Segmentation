@@ -55,7 +55,7 @@ class TrainImageDataset(data.Dataset):
             Returns:
                 tuple: (image, target) where target is class_index of the target class.
         """
-        
+        index  = self.X_train[index]
         img = self.coco.loadImgs(index)[0]
         image_path = os.path.join(self.IMAGES_DIRECTORY, img["file_name"])
         img = Image.open(image_path)
