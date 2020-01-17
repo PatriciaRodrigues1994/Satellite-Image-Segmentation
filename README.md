@@ -31,8 +31,8 @@ You can download the [datasets](https://www.aicrowd.com/challenges/mapping-chall
 ## How to run
 
 1. Download the dataset and run the preprocessing.py in the src directory.   
-2. To train a pretrained model, you can run training.py from the src directory.    
-3. For inference, use inference.py script.
+2. To train a model, you can run main.py from the src directory.    
+3. For inference, use test_change.py script.
 
 If you want to take a look at the prediction at each epochs you can use tensorboard with:  
 	tensorboard --logdir=./logs

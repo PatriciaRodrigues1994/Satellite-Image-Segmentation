@@ -147,7 +147,7 @@ class CarvanaClassifier:
         self.epoch_counter += 1
 
     def train(self, train_loader: DataLoader, valid_loader: DataLoader,
-              epochs, threshold=0.5, callbacks=None):
+              epochs, threshold=0.5, callbacks=None, train_encoder = False):
         """
             Trains the neural net
         Args:
@@ -156,12 +156,17 @@ class CarvanaClassifier:
             epochs (int): number of epochs
             threshold (float): The threshold used to consider the mask present or not
             callbacks (list): List of callbacks functions to call at each epoch
+            train_encoder (Bool): True if encoder is training or else False
         Returns:
             str, None: The path where the model was saved, or None if it wasn't saved
         """
         if self.use_cuda:
             self.net.cuda()
-        optimizer = optim.Adam(self.net.parameters())
+        if not train_encoder:
+        
+        
+        optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters())
+#         optimizer = optim.Adam(self.net.parameters())
         lr_scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True, min_lr=1e-7)
 
         for epoch in range(epochs):
