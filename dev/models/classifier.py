@@ -12,7 +12,7 @@ import model_utils.losses as losses_utils
 import model_utils.helpers as helpers
 
 
-class CarvanaClassifier:
+class UnetClassifier:
     def __init__(self, net, max_epochs):
         """
         The classifier for carvana used for training and launching predictions
@@ -162,10 +162,10 @@ class CarvanaClassifier:
         """
         if self.use_cuda:
             self.net.cuda()
-        if not train_encoder:
+
         
         
-        optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters())
+        optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.net.parameters()))
 #         optimizer = optim.Adam(self.net.parameters())
         lr_scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True, min_lr=1e-7)
 

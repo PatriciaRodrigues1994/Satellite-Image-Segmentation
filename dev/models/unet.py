@@ -115,6 +115,29 @@ import torchvision
 #         out = torch.squeeze(out, dim=1)
 #         return out
 
+def freezing_pretrained_layers(model = None, freeze = True):
+    """
+    Freeze or Unfreeze the pretrained Portion of Unet
+    """
+    ### Method 1
+#     for each in [model.conv1, model.conv2]:
+#         for i in [0,2]:
+#             each[i].weight.requires_grad = freeze
+#             each[i].bias.requires_grad = freeze
+
+#     for each in [model.conv3, model.conv4, model.conv5]:
+#         for i in [0,2,4]:
+#             each[i].weight.requires_grad = freeze
+#             each[i].bias.requires_grad = freeze
+     ### Method 2
+    for each in model.encoder:
+        if each._get_name() == 'Conv2d':
+            each.weight.requires_grad = freeze
+            each.bias.requires_grad = freeze
+            
+    return model
+
+
 def conv3x3(in_, out):
     return nn.Conv2d(in_, out, 3, padding=1)
 
