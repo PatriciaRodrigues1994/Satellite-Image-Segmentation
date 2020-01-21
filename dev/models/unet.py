@@ -99,20 +99,24 @@ import torchvision
 #         self.output_seg_map = nn.Conv2d(64, 1, kernel_size=(1, 1), padding=0, stride=1)
 
 #     def forward(self, x):
+#         print("input shape forward : ", x.shape)
 #         x, x_trace1 = self.down1(x)  # Calls the forward() method of each layer
+        
 #         x, x_trace2 = self.down2(x)
 #         x, x_trace3 = self.down3(x)
 #         x, x_trace4 = self.down4(x)
-
+#         print("down4 forward : ", x.shape)
 #         x = self.center(x)
-
+#         print("centre forward : ", x.shape)
 #         x = self.up1(x, x_trace4)
 #         x = self.up2(x, x_trace3)
 #         x = self.up3(x, x_trace2)
 #         x = self.up4(x, x_trace1)
-        
+#         print("up4 forward : ", x.shape)
 #         out = self.output_seg_map(x)
+#         print("output_seg_map forward : ",out.shape)
 #         out = torch.squeeze(out, dim=1)
+#         print("squeeze forward : ",out.shape)
 #         return out
 
 def freezing_pretrained_layers(model = None, freeze = True):
@@ -258,24 +262,26 @@ class UNet16(nn.Module):
         self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
 
     def forward(self, x):
+        
         conv1 = self.conv1(x)
         conv2 = self.conv2(self.pool(conv1))
         conv3 = self.conv3(self.pool(conv2))
         conv4 = self.conv4(self.pool(conv3))
         conv5 = self.conv5(self.pool(conv4))
-
+        
         center = self.center(self.pool(conv5))
-
+        
         dec5 = self.dec5(torch.cat([center, conv5], 1))
 
         dec4 = self.dec4(torch.cat([dec5, conv4], 1))
         dec3 = self.dec3(torch.cat([dec4, conv3], 1))
         dec2 = self.dec2(torch.cat([dec3, conv2], 1))
         dec1 = self.dec1(torch.cat([dec2, conv1], 1))
-
+       
         if self.num_classes > 1:
             x_out = F.log_softmax(self.final(dec1), dim=1)
         else:
             x_out = self.final(dec1)
-
+        x_out = torch.squeeze(x_out, dim=1)
+        
         return x_out

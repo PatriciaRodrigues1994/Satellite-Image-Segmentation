@@ -74,15 +74,18 @@ class TensorboardVisualizerCallback(Callback):
         writer = SummaryWriter(self.path_to_files)
 
         for i, (image, target_mask, pred_mask) in enumerate(zip(last_images, last_targets, last_preds)):
-
+            # import pdb; pdb.set_trace()
+            target_mask = target_mask.unsqueeze(0)
             image = image.data.float().cpu().numpy().astype(np.uint8)
             image = np.transpose(image, (1, 2, 0))  # Invert c, h, w to h, w, c
             target_mask = target_mask.float().data.cpu().numpy().astype(np.uint8)
             pred_mask = pred_mask.float().data.cpu().numpy().astype(np.uint8)
+            # target_mask = np.transpose(target_mask, (1, 2, 0))
+            # pred_mask = np.transpose(pred_mask, (1, 2, 0))
             if image.shape[0] > 256:  # We don't want the images on tensorboard to be too large
-                image = scipy.imresize(image, (256, 256))
-                target_mask = scipy.imresize(target_mask, (256, 256))
-                pred_mask = scipy.imresize(pred_mask, (256, 256))
+                image = scipy.imresize(image, (224,224))
+                target_mask = scipy.imresize(target_mask, (224,224))
+                pred_mask = scipy.imresize(pred_mask, (224,224))
 
             expected_result = self._get_mask_representation(image, target_mask)
             pred_result = self._get_mask_representation(image, pred_mask)

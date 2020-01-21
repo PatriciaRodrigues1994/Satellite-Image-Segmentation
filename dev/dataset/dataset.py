@@ -8,7 +8,7 @@ from pycocotools import mask as cocomask
 import skimage.io as io
 import matplotlib.pyplot as plt
 import glob
-
+from skimage import io, transform
 
 # Reference: https://github.com/pytorch/vision/blob/master/torchvision/datasets/folder.py#L66
 class TrainImageDataset(data.Dataset):
@@ -55,15 +55,19 @@ class TrainImageDataset(data.Dataset):
             Returns:
                 tuple: (image, target) where target is class_index of the target class.
         """
+        
         index  = self.X_train[index]
         img = self.coco.loadImgs(index)[0]
         image_path = os.path.join(self.IMAGES_DIRECTORY, img["file_name"])
         img = Image.open(image_path)
         img = img.resize(self.input_img_resize, Image.ANTIALIAS)
+        org_img = img.resize(self.input_img_resize, Image.ANTIALIAS)
         img = np.asarray(img.convert("RGB"), dtype=np.float32)
         # Pillow reads gifs
+        
         mask = self.get_mask(index)
-
+        
+        
         if self.X_transform:
             img, mask = self.X_transform(img, mask)
 
@@ -72,6 +76,7 @@ class TrainImageDataset(data.Dataset):
         
         img = transformer.image_to_tensor(img)
         mask = transformer.mask_to_tensor(mask, self.threshold)
+        
         return img, mask
 
     def __len__(self):

@@ -60,9 +60,11 @@ class TrainImageDataset(data.Dataset):
         image_path = os.path.join(self.IMAGES_DIRECTORY, img["file_name"])
         img = Image.open(image_path)
         img = img.resize(self.input_img_resize, Image.ANTIALIAS)
+
         img = np.asarray(img.convert("RGB"), dtype=np.float32)
         # Pillow reads gifs
         mask = self.get_mask(index)
+        
 
         if self.X_transform:
             img, mask = self.X_transform(img, mask)
@@ -71,7 +73,8 @@ class TrainImageDataset(data.Dataset):
             img, mask = self.y_transform(img, mask)
         
         img = transformer.image_to_tensor(img)
-        mask = transformer.mask_to_tensor(mask, self.threshold)
+        mask = transformer.mask_to_tensor(mask, self.threshold, self.input_img_resize)
+        
         return img, mask
 
     def __len__(self):

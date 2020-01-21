@@ -1,7 +1,7 @@
 import cv2
 import torch
 import numpy as np
-
+from skimage import io, transform
 
 def image_to_tensor(image, mean=0, std=1.):
     """
@@ -31,6 +31,7 @@ def mask_to_tensor(mask, threshold):
     """
     mask = mask
     mask = (mask > threshold).astype(np.float32)
+    mask = transform.resize(mask, (224,224))
     tensor = torch.from_numpy(mask).type(torch.FloatTensor)
     return tensor
 

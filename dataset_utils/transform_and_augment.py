@@ -1,7 +1,7 @@
 import cv2
 import torch
 import numpy as np
-
+from skimage import io, transform
 
 def image_to_tensor(image, mean=0, std=1.):
     """
@@ -12,7 +12,14 @@ def image_to_tensor(image, mean=0, std=1.):
         std: The standard deviation of the image values
     Returns:
         tensor: A Pytorch tensor
+        Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+
+
     """
+    # mean=[0.485, 0.456, 0.406]
+    # std=[0.229, 0.224, 0.225] # needs C, H, W
+    # imgae = F.normalize(image, mean ,std , False)
     image = image.astype(np.float32)
     image = (image - mean) / std
     image = image.transpose((2, 0, 1))
@@ -20,7 +27,7 @@ def image_to_tensor(image, mean=0, std=1.):
     return tensor
 
 
-def mask_to_tensor(mask, threshold):
+def mask_to_tensor(mask, threshold, input_size):
     """
     Transforms a mask to a tensor
     Args:
@@ -31,6 +38,7 @@ def mask_to_tensor(mask, threshold):
     """
     mask = mask
     mask = (mask > threshold).astype(np.float32)
+    mask = transform.resize(mask, input_size)
     tensor = torch.from_numpy(mask).type(torch.FloatTensor)
     return tensor
 

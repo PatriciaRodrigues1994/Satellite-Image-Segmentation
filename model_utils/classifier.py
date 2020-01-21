@@ -56,12 +56,13 @@ class UnetClassifier:
 
 				# Volatile because we are in pure inference mode
 				# http://pytorch.org/docs/master/notes/autograd.html#volatile
-				images = Variable(images, volatile=True)
-				targets = Variable(targets, volatile=True)
+				with torch.no_grad():
+					images = Variable(images)
+					targets = Variable(targets)
 
 				# forward
 				logits = self.net(images)
-				probs = F.sigmoid(logits)
+				probs = torch.sigmoid(logits)
 				preds = (probs > threshold).float()
 
 				loss = self._criterion(logits, targets)
@@ -92,7 +93,7 @@ class UnetClassifier:
 
 				# forward
 				logits = self.net.forward(inputs)
-				probs = F.sigmoid(logits)
+				probs = torch.sigmoid(logits)
 				pred = (probs > threshold).float()
 
 				# backward + optimize

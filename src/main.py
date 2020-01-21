@@ -28,9 +28,9 @@ import torch.optim as optim
 
 def create_call_backs(args):
 	# Training callbacks
-	tb_viz_cb = TensorboardVisualizerCallback(os.path.join(args.project_dir, '/sum_logs/tb_viz'))
-	tb_logs_cb = TensorboardLoggerCallback(os.path.join(args.project_dir, '/sum_logs/tb_logs'))
-	model_saver_cb = ModelSaverCallback(os.path.join(args.project_dir,'/sum_logs/tb_logs/model_' +
+	tb_viz_cb = TensorboardVisualizerCallback(os.path.join(args.project_dir, 'sum_logs/tb_viz'))
+	tb_logs_cb = TensorboardLoggerCallback(os.path.join(args.project_dir, 'sum_logs/tb_logs'))
+	model_saver_cb = ModelSaverCallback(os.path.join(args.project_dir,'sum_logs/tb_logs/model_' +
 													 helpers.get_model_timestamp()), verbose=True)
 	origin_img_size = 300
 	pred_saver_cb = PredictionsSaverCallback(os.path.join(args.project_dir, 'data/output/submit.csv.gz'),
@@ -70,7 +70,7 @@ def create_train_val_test_dataloaders(args, threads, use_cuda):
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--project_dir', type=str, default='/home/webwerks/my-projects/github/Segmentation', help='project directory')
+	parser.add_argument('--project_dir', type=str, default='/home/webwerks/patricia/my-projects/github/Segmentation', help='project directory')
 	
 	parser.add_argument('--train_image_directory', type=str, default = "data/train/images")
 	parser.add_argument('--train_annotations_path', type=str, default = "data/train/annotation.json")
@@ -79,9 +79,9 @@ def main():
 	parser.add_argument('--val_annotations_path', type=str, default = "data/val/annotation.json")
 	parser.add_argument('--val_annotations_small_path', type=str, default = "data/val/annotation-small.json")
 	parser.add_argument('--test_image_directory', type=str, default = "data/test")
-
-	parser.add_argument('--input_img_resize', type=tuple, default = (300, 300), help='The resize size of the input images of the neural net')
-	parser.add_argument('--output_img_resize', type=tuple, default = (300, 300), help='The resize size of the output images of the neural net')
+	#  224X224X3
+	parser.add_argument('--input_img_resize', type=tuple, default = (224, 224), help='The resize size of the input images of the neural net')
+	parser.add_argument('--output_img_resize', type=tuple, default = (224, 224), help='The resize size of the output images of the neural net')
 	parser.add_argument('--batch_size', type=int, default = 3)
 	parser.add_argument('--epochs', type=int, default = 50)
 	parser.add_argument('--threshold', type=float, default = 0.5)

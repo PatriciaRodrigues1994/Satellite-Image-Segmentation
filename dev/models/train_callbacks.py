@@ -74,7 +74,6 @@ class TensorboardVisualizerCallback(Callback):
         writer = SummaryWriter(self.path_to_files)
 
         for i, (image, target_mask, pred_mask) in enumerate(zip(last_images, last_targets, last_preds)):
-
             image = image.data.float().cpu().numpy().astype(np.uint8)
             image = np.transpose(image, (1, 2, 0))  # Invert c, h, w to h, w, c
             target_mask = target_mask.float().data.cpu().numpy().astype(np.uint8)

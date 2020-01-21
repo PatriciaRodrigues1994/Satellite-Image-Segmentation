@@ -146,16 +146,16 @@ class UNet16(nn.Module):
 		self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
 
 	def forward(self, x):
+		
 		conv1 = self.conv1(x)
 		conv2 = self.conv2(self.pool(conv1))
 		conv3 = self.conv3(self.pool(conv2))
 		conv4 = self.conv4(self.pool(conv3))
 		conv5 = self.conv5(self.pool(conv4))
-
+		
 		center = self.center(self.pool(conv5))
-		print(center.shape, conv5.shape)
+		
 		dec5 = self.dec5(torch.cat([center, conv5], 1))
-
 		dec4 = self.dec4(torch.cat([dec5, conv4], 1))
 		dec3 = self.dec3(torch.cat([dec4, conv3], 1))
 		dec2 = self.dec2(torch.cat([dec3, conv2], 1))
@@ -165,5 +165,5 @@ class UNet16(nn.Module):
 			x_out = F.log_softmax(self.final(dec1), dim=1)
 		else:
 			x_out = self.final(dec1)
-
+		x_out = torch.squeeze(x_out, dim=1)
 		return x_out

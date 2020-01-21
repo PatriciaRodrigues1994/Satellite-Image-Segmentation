@@ -61,7 +61,7 @@ class UnetClassifier:
 
                 # forward
                 logits = self.net(images)
-                probs = F.sigmoid(logits)
+                probs = torch.sigmoid(logits)
                 preds = (probs > threshold).float()
 
                 loss = self._criterion(logits, targets)
@@ -69,7 +69,7 @@ class UnetClassifier:
                 losses.update(loss.item(), batch_size)
                 dice_coeffs.update(acc.item(), batch_size)
                 pbar.update(1)
-
+                
         return losses.avg, dice_coeffs.avg, images, targets, preds
 
     def _train_epoch(self, train_loader, optimizer, threshold):
@@ -92,10 +92,11 @@ class UnetClassifier:
 
                 # forward
                 logits = self.net.forward(inputs)
-                probs = F.sigmoid(logits)
+                probs = torch.sigmoid(logits)
                 pred = (probs > threshold).float()
-
+                
                 # backward + optimize
+                
                 loss = self._criterion(logits, target)
                 optimizer.zero_grad()
                 loss.backward()
@@ -165,7 +166,7 @@ class UnetClassifier:
 
         
         
-        optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.net.parameters()))
+        optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.net.parameters()), lr = 0.01)
 #         optimizer = optim.Adam(self.net.parameters())
         lr_scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True, min_lr=1e-7)
 
