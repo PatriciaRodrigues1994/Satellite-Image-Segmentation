@@ -40,7 +40,7 @@ def create_call_backs(args):
 
 def create_train_val_test_dataloaders(args, threads, use_cuda):
 	# create a train dataset
-	train_coco = COCO(os.path.join(args.train_annotations_small_path))
+	train_coco = COCO(os.path.join(args.val_annotations_small_path))
 	# create a val dataset
 	val_coco = COCO(os.path.join(args.val_annotations_small_path))
 
@@ -83,7 +83,7 @@ def main():
 	parser.add_argument('--input_img_resize', type=tuple, default = (224, 224), help='The resize size of the input images of the neural net')
 	parser.add_argument('--output_img_resize', type=tuple, default = (224, 224), help='The resize size of the output images of the neural net')
 	parser.add_argument('--batch_size', type=int, default = 3)
-	parser.add_argument('--epochs', type=int, default = 50)
+	parser.add_argument('--epochs', type=int, default = 2)
 	parser.add_argument('--threshold', type=float, default = 0.5)
 	parser.add_argument('--validation_size', type=float, default = 0.2)\
 	# Put 'None' to work on full dataset or a value between 0 and 1
@@ -108,8 +108,8 @@ def main():
 	net = unet.freezing_pretrained_layers(model = net, freeze = False)
 	unet_classifier = classifier.UnetClassifier(net, args.epochs)
 	# Train the classifier
-	epochs = 2
-	unet_classifier.train(train_loader, valid_loader, epochs, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
+	
+	unet_classifier.train(train_loader, valid_loader, args.epochs, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
 	
 
 

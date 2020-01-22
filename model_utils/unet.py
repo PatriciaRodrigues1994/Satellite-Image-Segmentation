@@ -166,4 +166,5 @@ class UNet16(nn.Module):
 		else:
 			x_out = self.final(dec1)
 		x_out = torch.squeeze(x_out, dim=1)
+		# print(x_out.shape)
 		return x_out
