@@ -2,7 +2,8 @@
 
 ## Synopsis
 
-Images are increasingly available from a variety of sources, including nano-satellites, drones and conventional high altitude satellites. The data is available: the task is to produce intervention-specific maps with the relevant features and in a short timeframe. Thus, the goal is to train a model which given a new tile can annotate all buildings.
+Images are increasingly available from a variety of sources, including nano-satellites, drones and conventional high altitude satellites. The data is available: the task is to produce intervention-specific maps with the relevant features and in a short timeframe. Thus, the goal is to train a model which given a new tile can annotate all buildings.   
+Here a U-Net model is used with VGG11 as encoder. Also, a separate script to detect the land changes over time is provided to detect and calculate the difference in the landscape
 
 ## Dataset
 
@@ -30,12 +31,19 @@ You can download the [datasets](https://www.aicrowd.com/challenges/mapping-chall
 
 ## How to run
 
-1. Download the dataset and run the preprocessing.py in the src directory.   
-2. To train a model, you can run main.py from the src directory.    
-3. For inference, use test_change.py script.
+1. Download the dataset from the sources above 
+
+2. To train a model     
+`python main.py --project_dir="PATH/TO/PROJECT"`  
+
+3. To detect the land changes over time  
+`python test_change.py`    
 
 If you want to take a look at the prediction at each epochs you can use tensorboard with:  
-	tensorboard --logdir=./logs
+	`tensorboard --logdir=./logs`     
 
 ## Results
+1. Detected Masks
 ![Satellite Image and its predicited mask](./data/output/mask_output.png)
+2. This algorithm was also applied to another dataset to detect the landc changes over-time.
+![LAND CHANGE DETECTION](./data/output/change.png)
