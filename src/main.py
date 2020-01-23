@@ -24,6 +24,10 @@ from model_utils import classifier
 from model_utils import unet
 import torch.optim as optim
 
+# ignore warning
+import warnings
+warnings.filterwarnings("ignore")
+
 
 
 def create_call_backs(args):
@@ -82,7 +86,7 @@ def main():
 	#  224X224X3
 	parser.add_argument('--input_img_resize', type=tuple, default = (224, 224), help='The resize size of the input images of the neural net')
 	parser.add_argument('--output_img_resize', type=tuple, default = (224, 224), help='The resize size of the output images of the neural net')
-	parser.add_argument('--batch_size', type=int, default = 3)
+	parser.add_argument('--batch_size', type=int, default = 5)
 	parser.add_argument('--epochs', type=int, default = 50)
 	parser.add_argument('--threshold', type=float, default = 0.5)
 	parser.add_argument('--validation_size', type=float, default = 0.2)\
@@ -108,8 +112,8 @@ def main():
 	net = unet.freezing_pretrained_layers(model = net, freeze = False)
 	unet_classifier = classifier.UnetClassifier(net, args.epochs)
 	# Train the classifier
-	epochs = 2
-	unet_classifier.train(train_loader, valid_loader, epochs, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
+	
+	unet_classifier.train(train_loader, valid_loader, args.epochs, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
 	
 
 
