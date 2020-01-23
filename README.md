@@ -42,8 +42,12 @@ You can download the [datasets](https://www.aicrowd.com/challenges/mapping-chall
 If you want to take a look at the prediction at each epochs you can use tensorboard with:  
 	`tensorboard --logdir=./logs`     
 
-## Results
-1. Detected Masks
-![Satellite Image and its predicited mask](./data/output/mask_output.png)
-2. This algorithm was also applied to another dataset to detect the landc changes over-time.
+## Results  
+
+1. Detected Masks  
+
+![Satellite Image and its predicited mask](./data/output/mask_output.png)   
+
+2. This algorithm was also applied to another dataset to detect the land changes over-time.   
+
 ![LAND CHANGE DETECTION](./data/output/change.png)
