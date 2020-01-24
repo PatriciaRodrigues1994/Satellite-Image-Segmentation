@@ -7,7 +7,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 import model_utils.tools as tools
 from tqdm import tqdm
 from collections import OrderedDict
-
+import numpy as np
 import model_utils.losses as losses_utils
 import model_utils.helpers as helpers
 
@@ -148,7 +148,7 @@ class UnetClassifier:
 		self.epoch_counter += 1
 
 	def train(self, train_loader: DataLoader, valid_loader: DataLoader,
-			  epochs, threshold=0.5, callbacks=None):
+			  epochs, finetune  = False, threshold=0.5, callbacks=None):
 		"""
 			Trains the neural net
 		Args:
@@ -162,7 +162,16 @@ class UnetClassifier:
 		"""
 		if self.use_cuda:
 			self.net.cuda()
-		optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.net.parameters()))
+		
+		if finetune:
+			lrs = np.array([1e-4,5e-3,1e-2])
+			optimizer = optim.Adam(
+					    [{"params": self.net.encoder.parameters(), "lr": lrs[0]},
+					     {"params":self.net.center.parameters(), "lr": lrs[1]},
+					    ], lr=lrs[2],
+					    )
+		else:
+			optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.net.parameters()))
 		lr_scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True, min_lr=1e-7)
 
 		for epoch in range(epochs):
@@ -175,6 +184,8 @@ class UnetClassifier:
 				   net=self.net,
 				   epoch_id=self.epoch_counter + 1,
 				   )
+
+
 
 	@helpers.st_time(show_func_name=False)
 	def predict(self, test_loader, callbacks=None):
@@ -199,7 +210,44 @@ class UnetClassifier:
 
 				# forward
 				logits = self.net(images)
-				probs = F.sigmoid(logits)
+				probs = torch.sigmoid(logits)
+				probs = probs.data.cpu().numpy()
+
+				# If there are callback call their __call__ method and pass in some arguments
+				if callbacks:
+					for cb in callbacks:
+						cb(step_name="predict",
+						   net=self.net,
+						   probs=probs,
+						   files_name=files_name
+						   )
+
+				pbar.update(1)
+
+	@helpers.st_time(show_func_name=False)
+	def predict_image(self, image, callbacks=None):
+		"""
+			Launch the prediction on the given loader and pass
+			each predictions to the given callbacks.
+		Args:
+			test_loader (DataLoader): The loader containing the test dataset
+			callbacks (list): List of callbacks functions to call at prediction pass
+		"""
+		# Switch to evaluation mode
+		self.net.eval()
+
+		it_count = len(test_loader)
+
+		with tqdm(total=it_count, desc="Classifying") as pbar:
+			for ind, (images, files_name) in enumerate(test_loader):
+				if self.use_cuda:
+					images = images.cuda()
+
+				images = Variable(images, volatile=True)
+
+				# forward
+				logits = self.net(images)
+				probs = torch.sigmoid(logits)
 				probs = probs.data.cpu().numpy()
 
 				# If there are callback call their __call__ method and pass in some arguments

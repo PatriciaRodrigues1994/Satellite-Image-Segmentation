@@ -71,9 +71,11 @@ class TrainImageDataset(data.Dataset):
 
         if self.y_transform:
             img, mask = self.y_transform(img, mask)
+
+        # print(img.shape, mask.shape)
         
         img = transformer.image_to_tensor(img)
-        mask = transformer.mask_to_tensor(mask, self.threshold, self.input_img_resize)
+        mask = transformer.mask_to_tensor(mask, self.threshold)
         
         return img, mask
 

@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 
-def freezing_pretrained_layers(model = None, freeze = True):
+def freezing_pretrained_layers(model = None, grad = True):
 	"""
 	Freeze or Unfreeze the pretrained Portion of Unet
 	"""
@@ -20,8 +20,8 @@ def freezing_pretrained_layers(model = None, freeze = True):
 	 ### Method 2
 	for each in model.encoder:
 		if each._get_name() == 'Conv2d':
-			each.weight.requires_grad = freeze
-			each.bias.requires_grad = freeze
+			each.weight.requires_grad = grad
+			each.bias.requires_grad = grad
 			
 	return model
 

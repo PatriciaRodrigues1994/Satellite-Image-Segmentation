@@ -27,7 +27,7 @@ def image_to_tensor(image, mean=0, std=1.):
     return tensor
 
 
-def mask_to_tensor(mask, threshold, input_size):
+def mask_to_tensor(mask, threshold):
     """
     Transforms a mask to a tensor
     Args:
@@ -38,7 +38,7 @@ def mask_to_tensor(mask, threshold, input_size):
     """
     mask = mask
     mask = (mask > threshold).astype(np.float32)
-    mask = transform.resize(mask, input_size)
+    # mask = transform.resize(mask, input_size)
     tensor = torch.from_numpy(mask).type(torch.FloatTensor)
     return tensor
 
@@ -91,7 +91,7 @@ def augment_img(img, mask):
     angle = np.random.uniform(rotate_limit[0], rotate_limit[1])  # degree
     scale = np.random.uniform(1 + scale_limit[0], 1 + scale_limit[1])
     aspect = np.random.uniform(1 + aspect_limit[0], 1 + aspect_limit[1])
-
+    
     img = random_shift_scale_rotate(img, angle, scale, aspect, shift_dx, shift_dy)
     mask = random_shift_scale_rotate(mask, angle, scale, aspect, shift_dx, shift_dy)
 

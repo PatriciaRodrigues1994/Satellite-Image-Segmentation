@@ -34,9 +34,8 @@ def create_call_backs(args):
 	# Training callbacks
 	tb_viz_cb = TensorboardVisualizerCallback(os.path.join(args.project_dir, 'sum_logs/tb_viz'))
 	tb_logs_cb = TensorboardLoggerCallback(os.path.join(args.project_dir, 'sum_logs/tb_logs'))
-	model_saver_cb = ModelSaverCallback(os.path.join(args.project_dir,'sum_logs/tb_logs/model_' +
-													 helpers.get_model_timestamp()), verbose=True)
-	origin_img_size = 300
+	model_saver_cb = ModelSaverCallback(os.path.join(args.project_dir,'sum_logs/tb_logs/model.pt'), verbose=True)
+	origin_img_size = 224
 	pred_saver_cb = PredictionsSaverCallback(os.path.join(args.project_dir, 'data/output/submit.csv.gz'),
 												 origin_img_size, args.threshold)
 
@@ -48,7 +47,7 @@ def create_train_val_test_dataloaders(args, threads, use_cuda):
 	# create a val dataset
 	val_coco = COCO(os.path.join(args.val_annotations_small_path))
 
-	train_ds = TrainImageDataset(img_dir = args.train_image_directory , cocodataset = train_coco, y_data = None, 
+	train_ds = TrainImageDataset(img_dir = args.val_image_directory , cocodataset = val_coco, y_data = None, 
 								 input_img_resize = args.input_img_resize,output_img_resize = args.output_img_resize, X_transform=trans_aug.augment_img)
 
 	train_loader = DataLoader(train_ds, args.batch_size,sampler=RandomSampler(train_ds), num_workers=threads,pin_memory=use_cuda)
@@ -57,7 +56,7 @@ def create_train_val_test_dataloaders(args, threads, use_cuda):
 								 input_img_resize = args.input_img_resize, output_img_resize = args.output_img_resize, X_transform=trans_aug.augment_img)
 
 	valid_loader = DataLoader(valid_ds, args.batch_size,
-							  sampler=SequentialSampler(valid_ds),
+							  sampler=RandomSampler(valid_ds),
 							  num_workers=threads,
 							  pin_memory=use_cuda)
 	# test dataset
@@ -83,19 +82,25 @@ def main():
 	parser.add_argument('--val_annotations_path', type=str, default = "data/val/annotation.json")
 	parser.add_argument('--val_annotations_small_path', type=str, default = "data/val/annotation-small.json")
 	parser.add_argument('--test_image_directory', type=str, default = "data/test")
-	#  224X224X3
+	
 	parser.add_argument('--input_img_resize', type=tuple, default = (224, 224), help='The resize size of the input images of the neural net')
 	parser.add_argument('--output_img_resize', type=tuple, default = (224, 224), help='The resize size of the output images of the neural net')
-	parser.add_argument('--batch_size', type=int, default = 5)
-	parser.add_argument('--epochs', type=int, default = 50)
+	parser.add_argument('--batch_size', type=int, default = 10)
+	parser.add_argument('--epochs', type=int, default = 1)
 	parser.add_argument('--threshold', type=float, default = 0.5)
 	parser.add_argument('--validation_size', type=float, default = 0.2)\
 	# Put 'None' to work on full dataset or a value between 0 and 1
 	parser.add_argument('--sample_size', type=float, default = None)
 
+	# finetuning and inference arguments
+	parser.add_argument('--output_model_file', type=str, default = None)
+	parser.add_argument('--preliminary_training', type=bool, default = False)
+	parser.add_argument('--finetuning', type=bool, default = True)
+	parser.add_argument('--fine_tune_epochs', type=int, default = 3)
+	parser.add_argument('--pred_on_inference_set', type=bool, default = False)
+	parser.add_argument('--pred_on_inference_img', type=bool, default = False)
+
 	args = parser.parse_args()
-	print(args.project_dir)
-	
 	os.chdir(args.project_dir)
 	# -- Optional parameters
 	threads = cpu_count()
@@ -104,17 +109,32 @@ def main():
 	train_loader, valid_loader, test_loader = create_train_val_test_dataloaders(args, threads, use_cuda)
 	tb_viz_cb, tb_logs_cb, model_saver_cb, pred_saver_cb = create_call_backs(args)
 
-
 	# train model
 
-
 	net = unet.UNet16()
-	net = unet.freezing_pretrained_layers(model = net, freeze = False)
-	unet_classifier = classifier.UnetClassifier(net, args.epochs)
-	# Train the classifier
+	if args.preliminary_training:
+		net = unet.freezing_pretrained_layers(model = net, grad = False)
+		unet_classifier = classifier.UnetClassifier(net, args.epochs)
+		# Train the classifier
+		unet_classifier.train(train_loader, valid_loader, args.epochs, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
 	
-	unet_classifier.train(train_loader, valid_loader, args.epochs, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
+
+	if args.finetuning:
+		print("finetuning")
+		net.load_state_dict(torch.load(os.path.join(args.project_dir,'sum_logs/tb_logs/model.pt')))
+		net = unet.freezing_pretrained_layers(model = net)
+		unet_classifier = classifier.UnetClassifier(net, args.fine_tune_epochs)
+		# Train the classifier
+		unet_classifier.train(train_loader, valid_loader, args.fine_tune_epochs, finetune = args.finetuning, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
 	
+	# if args.pred_on_inference_set:
+	# 	origin_img_size = 224
+	# 	# # Predict & save
+	# 	classifier.predict(test_loader, callbacks=[pred_saver_cb])
+	# 	pred_saver_cb.close_saver()
+
+	# if args.pred_on_inference_img:
+	# 	net.load_state_dict(torch.load(os.path.join(args.project_dir,'sum_logs/tb_logs/model.pt')))
 
 
 if __name__ == '__main__':
