@@ -46,8 +46,8 @@ def create_train_val_test_dataloaders(args, threads, use_cuda):
 	train_coco = COCO(os.path.join(args.train_annotations_small_path))
 	# create a val dataset
 	val_coco = COCO(os.path.join(args.val_annotations_small_path))
-
-	train_ds = TrainImageDataset(img_dir = args.val_image_directory , cocodataset = val_coco, y_data = None, 
+	# 
+	train_ds = TrainImageDataset(img_dir = args.train_image_directory , cocodataset = train_coco, y_data = None, 
 								 input_img_resize = args.input_img_resize,output_img_resize = args.output_img_resize, X_transform=trans_aug.augment_img)
 
 	train_loader = DataLoader(train_ds, args.batch_size,sampler=RandomSampler(train_ds), num_workers=threads,pin_memory=use_cuda)
@@ -56,7 +56,7 @@ def create_train_val_test_dataloaders(args, threads, use_cuda):
 								 input_img_resize = args.input_img_resize, output_img_resize = args.output_img_resize, X_transform=trans_aug.augment_img)
 
 	valid_loader = DataLoader(valid_ds, args.batch_size,
-							  sampler=RandomSampler(valid_ds),
+							  sampler=SequentialSampler(valid_ds),
 							  num_workers=threads,
 							  pin_memory=use_cuda)
 	# test dataset
@@ -86,7 +86,7 @@ def main():
 	parser.add_argument('--input_img_resize', type=tuple, default = (224, 224), help='The resize size of the input images of the neural net')
 	parser.add_argument('--output_img_resize', type=tuple, default = (224, 224), help='The resize size of the output images of the neural net')
 	parser.add_argument('--batch_size', type=int, default = 10)
-	parser.add_argument('--epochs', type=int, default = 1)
+	parser.add_argument('--epochs', type=int, default = 5)
 	parser.add_argument('--threshold', type=float, default = 0.5)
 	parser.add_argument('--validation_size', type=float, default = 0.2)\
 	# Put 'None' to work on full dataset or a value between 0 and 1
@@ -94,7 +94,7 @@ def main():
 
 	# finetuning and inference arguments
 	parser.add_argument('--output_model_file', type=str, default = None)
-	parser.add_argument('--preliminary_training', type=bool, default = False)
+	parser.add_argument('--preliminary_training', type=bool, default = True)
 	parser.add_argument('--finetuning', type=bool, default = True)
 	parser.add_argument('--fine_tune_epochs', type=int, default = 3)
 	parser.add_argument('--pred_on_inference_set', type=bool, default = False)

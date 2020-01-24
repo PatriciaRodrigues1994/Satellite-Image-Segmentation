@@ -7,8 +7,9 @@ from pycocotools.coco import COCO
 from pycocotools import mask as cocomask
 import skimage.io as io
 import matplotlib.pyplot as plt
+import torchvision.transforms as transforms
 import glob
-
+import cv2
 
 # Reference: https://github.com/pytorch/vision/blob/master/torchvision/datasets/folder.py#L66
 class TrainImageDataset(data.Dataset):
@@ -38,6 +39,7 @@ class TrainImageDataset(data.Dataset):
         self.coco = cocodataset
         self.X_train = self.coco.getImgIds(catIds=self.coco.getCatIds())
         self.IMAGES_DIRECTORY = img_dir
+        self.norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
         
         
     def get_mask(self, img_index):
@@ -58,23 +60,29 @@ class TrainImageDataset(data.Dataset):
         index  = self.X_train[index]
         img = self.coco.loadImgs(index)[0]
         image_path = os.path.join(self.IMAGES_DIRECTORY, img["file_name"])
-        img = Image.open(image_path)
-        img = img.resize(self.input_img_resize, Image.ANTIALIAS)
+        img = cv2.imread(image_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, self.input_img_resize, interpolation = cv2.INTER_NEAREST)
+        img = np.asarray(img, dtype=np.float32)
+        # img = Image.open(image_path)
+        # img = img.resize(self.input_img_resize, Image.ANTIALIAS)
+        # img = np.asarray(img.convert("RGB"), dtype=np.float32)
 
-        img = np.asarray(img.convert("RGB"), dtype=np.float32)
         # Pillow reads gifs
         mask = self.get_mask(index)
+        mask = cv2.resize(mask, self.input_img_resize, interpolation = cv2.INTER_NEAREST)
         
 
         if self.X_transform:
             img, mask = self.X_transform(img, mask)
+            
 
         if self.y_transform:
             img, mask = self.y_transform(img, mask)
-
-        # print(img.shape, mask.shape)
+            
         
         img = transformer.image_to_tensor(img)
+        img = self.norm(img)
         mask = transformer.mask_to_tensor(mask, self.threshold)
         
         return img, mask
