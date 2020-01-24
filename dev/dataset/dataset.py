@@ -9,6 +9,7 @@ import skimage.io as io
 import matplotlib.pyplot as plt
 import glob
 from skimage import io, transform
+import cv2
 
 # Reference: https://github.com/pytorch/vision/blob/master/torchvision/datasets/folder.py#L66
 class TrainImageDataset(data.Dataset):
@@ -59,14 +60,18 @@ class TrainImageDataset(data.Dataset):
         index  = self.X_train[index]
         img = self.coco.loadImgs(index)[0]
         image_path = os.path.join(self.IMAGES_DIRECTORY, img["file_name"])
-        img = Image.open(image_path)
-        img = img.resize(self.input_img_resize, Image.ANTIALIAS)
-        org_img = img.resize(self.input_img_resize, Image.ANTIALIAS)
-        img = np.asarray(img.convert("RGB"), dtype=np.float32)
+        img = cv2.imread(image_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, self.input_img_resize, interpolation = cv2.INTER_NEAREST)
+#         img = Image.open(image_path)
+#         img = img.resize(self.input_img_resize, Image.ANTIALIAS)
+#         org_img = img.resize(self.input_img_resize, Image.ANTIALIAS)
+        img = np.asarray(img, dtype=np.float32)
         # Pillow reads gifs
         
         mask = self.get_mask(index)
-        import pdb; pdb.set_trace()
+        mask = cv2.resize(mask, self.input_img_resize, interpolation = cv2.INTER_NEAREST)
+        
         
         if self.X_transform:
             img, mask = self.X_transform(img, mask)
