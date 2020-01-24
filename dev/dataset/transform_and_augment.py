@@ -31,7 +31,7 @@ def mask_to_tensor(mask, threshold):
     """
     mask = mask
     mask = (mask > threshold).astype(np.float32)
-    mask = transform.resize(mask, (224,224))
+#     mask = transform.resize(mask, (224,224))
     tensor = torch.from_numpy(mask).type(torch.FloatTensor)
     return tensor
 

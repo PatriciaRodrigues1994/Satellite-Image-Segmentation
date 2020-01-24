@@ -66,7 +66,7 @@ class TrainImageDataset(data.Dataset):
         # Pillow reads gifs
         
         mask = self.get_mask(index)
-        
+        import pdb; pdb.set_trace()
         
         if self.X_transform:
             img, mask = self.X_transform(img, mask)
