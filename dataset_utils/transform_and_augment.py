@@ -3,6 +3,7 @@ import torch
 import random
 import numpy as np
 from skimage import io, transform
+import torch.nn.functional as F
 
 def image_to_tensor(image, mean=0, std=1.):
     """
@@ -22,7 +23,7 @@ def image_to_tensor(image, mean=0, std=1.):
     # std=[0.229, 0.224, 0.225] # needs C, H, W
     # imgae = F.normalize(image, mean ,std , False)
     image = image.astype(np.float32)
-    # image = (image - mean) / std
+    image = (image - mean) / std
     image = image.transpose((2, 0, 1))
     tensor = torch.from_numpy(image)
     return tensor

@@ -82,7 +82,7 @@ class TrainImageDataset(data.Dataset):
             
         
         img = transformer.image_to_tensor(img)
-        img = self.norm(img)
+        
         mask = transformer.mask_to_tensor(mask, self.threshold)
         
         return img, mask
