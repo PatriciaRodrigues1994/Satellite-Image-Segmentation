@@ -86,8 +86,8 @@ def mask_to_tensor(mask, threshold):
 def augmentation(image, label):
 
     h, w, _ = image.shape
-    if random.random() > 0.5:
-            angle = random.randint(-10, 10)
+    if random.random() > 0.25:
+            angle = random.randint(-30, 30)
             center = (w / 2, h / 2)
             rot_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
             image = cv2.warpAffine(image, rot_matrix, (w, h), flags=cv2.INTER_LINEAR)#, borderMode=cv2.BORDER_REFLECT)
@@ -117,7 +117,7 @@ def augmentation(image, label):
     #     label = label[start_h:end_h, start_w:end_w]
 
         # Random H flip
-    if random.random() > 0.5:
+    if random.random() > 0.25:
         if random.random() > 0.5:
             image = np.fliplr(image).copy()
             label = np.fliplr(label).copy()
