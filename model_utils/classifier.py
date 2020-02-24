@@ -206,7 +206,7 @@ class UnetClassifier:
 				if self.use_cuda:
 					images = images.cuda()
 
-				images = Variable(images, volatile=True)
+				images = Variable(images)
 
 				# forward
 				logits = self.net(images)
@@ -243,7 +243,7 @@ class UnetClassifier:
 				if self.use_cuda:
 					images = images.cuda()
 
-				images = Variable(images, volatile=True)
+				images = Variable(images)
 
 				# forward
 				logits = self.net(images)

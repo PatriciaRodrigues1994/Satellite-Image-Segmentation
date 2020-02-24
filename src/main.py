@@ -35,7 +35,7 @@ def create_call_backs(args):
 	tb_viz_cb = TensorboardVisualizerCallback(os.path.join(args.project_dir, 'sum_logs/tb_viz'))
 	tb_logs_cb = TensorboardLoggerCallback(os.path.join(args.project_dir, 'sum_logs/tb_logs'))
 	model_saver_cb = ModelSaverCallback(os.path.join(args.project_dir,'sum_logs/tb_logs/model.pt'), verbose=True)
-	origin_img_size = 224
+	origin_img_size = (224, 224)
 	pred_saver_cb = PredictionsSaverCallback(os.path.join(args.project_dir, 'data/output/submit.csv.gz'),
 												 origin_img_size, args.threshold)
 
@@ -43,9 +43,9 @@ def create_call_backs(args):
 
 def create_train_val_test_dataloaders(args, threads, use_cuda):
 	# create a train dataset
-	train_coco = COCO(os.path.join(args.train_annotations_small_path))
+	train_coco = COCO(os.path.join(args.train_annotations_path))
 	# create a val dataset
-	val_coco = COCO(os.path.join(args.val_annotations_small_path))
+	val_coco = COCO(os.path.join(args.val_annotations_path))
 	# 
 	train_ds = TrainImageDataset(img_dir = args.train_image_directory , cocodataset = train_coco, y_data = None, 
 								 input_img_resize = args.input_img_resize,output_img_resize = args.output_img_resize, X_transform=trans_aug.augment_img)
@@ -97,7 +97,7 @@ def main():
 	parser.add_argument('--preliminary_training', type=bool, default = True)
 	parser.add_argument('--finetuning', type=bool, default = True)
 	parser.add_argument('--fine_tune_epochs', type=int, default = 10)
-	parser.add_argument('--pred_on_inference_set', type=bool, default = False)
+	parser.add_argument('--pred_on_inference_set', type=bool, default = True)
 	parser.add_argument('--pred_on_inference_img', type=bool, default = False)
 
 	args = parser.parse_args()
@@ -127,14 +127,14 @@ def main():
 		# Train the classifier
 		unet_classifier.train(train_loader, valid_loader, args.fine_tune_epochs, finetune = args.finetuning, callbacks=[tb_viz_cb, tb_logs_cb, model_saver_cb])
 	
-	# if args.pred_on_inference_set:
-	# 	origin_img_size = 224
-	# 	# # Predict & save
-	# 	classifier.predict(test_loader, callbacks=[pred_saver_cb])
-	# 	pred_saver_cb.close_saver()
+	if args.pred_on_inference_set:
+		origin_img_size = 224
+		# # Predict & save
+		unet_classifier.predict(test_loader, callbacks=[pred_saver_cb])
+		pred_saver_cb.close_saver()
 
-	# if args.pred_on_inference_img:
-	# 	net.load_state_dict(torch.load(os.path.join(args.project_dir,'sum_logs/tb_logs/model.pt')))
+	if args.pred_on_inference_img:
+		net.load_state_dict(torch.load(os.path.join(args.project_dir,'sum_logs/tb_logs/model.pt')))
 
 
 if __name__ == '__main__':

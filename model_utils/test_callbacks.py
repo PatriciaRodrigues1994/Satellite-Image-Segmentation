@@ -55,6 +55,7 @@ class PredictionsSaverCallback(Callback):
         # Save the predictions
         for (pred, name) in zip(probs, files_name):
             rle = self.get_mask_rle(pred)
+            print(rle)
             self.writer.writerow([name, rle])
 
     def close_saver(self):
